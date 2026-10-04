@@ -1,0 +1,20 @@
+# Development dependencies for the TaskManager project
+# Install with: pip install -r requirements-dev.txt
+
+# ── Testing ─────────────────────────────────────────────────────────────────
+pytest>=7.4.0            # test runner
+pytest-cov>=4.1.0        # coverage plugin for pytest
+
+# ── Code quality ─────────────────────────────────────────────────────────────
+flake8>=6.1.0            # PEP 8 linter
+black>=23.9.0            # opinionated code formatter
+isort>=5.12.0            # import sorter
+
+# ── Type-checking ─────────────────────────────────────────────────────────────
+mypy>=1.6.0              # static type checker
+
+# ── Security ─────────────────────────────────────────────────────────────────
+bandit[toml]>=1.7.5      # SAST security scanner
+
+# ── Reporting ─────────────────────────────────────────────────────────────────
+coverage[toml]>=7.3.0    # coverage measurement (used by pytest-cov)

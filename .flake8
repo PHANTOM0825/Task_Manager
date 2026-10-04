@@ -1,0 +1,16 @@
+# .flake8 — flake8 configuration file
+# (flake8 does not yet read from pyproject.toml natively)
+
+[flake8]
+max-line-length = 100
+extend-ignore =
+    # W503: line break before binary operator (black's style)
+    W503,
+    # E203: whitespace before ':' (black's style)
+    E203
+per-file-ignores =
+    # Allow long lines in test files for readability
+    taskmanager/tests/*: E501
+statistics = True
+count = True
+show-source = True

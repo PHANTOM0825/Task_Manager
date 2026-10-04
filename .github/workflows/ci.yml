@@ -1,0 +1,211 @@
+# GitHub Actions CI/CD Pipeline
+# =================================
+# This workflow runs automatically on every push and pull request.
+# It enforces code quality via linting, type-checking, and testing,
+# and produces an HTML coverage report as a downloadable artifact.
+#
+# Pipeline stages (in order):
+#   1. lint     – flake8 (PEP 8) + black (formatting) + isort (imports)
+#   2. type     – mypy static type-checking
+#   3. test     – pytest with coverage, JUnit XML report, HTML report
+#   4. security – bandit SAST scan
+#   5. report   – upload coverage HTML as Actions artifact
+#
+# Trigger conditions:
+#   - push to 'main' or 'develop' branches
+#   - any pull request targeting 'main'
+#
+# Environment:
+#   - Ubuntu latest
+#   - Python 3.11
+#
+# How to trigger locally (act):
+#   act -j test                          # run only the test job
+#   act push --secret GITHUB_TOKEN=...  # simulate a push event
+#
+# How to view CI logs:
+#   GitHub → Repository → Actions → click the workflow run
+
+name: CI Pipeline – TaskManager
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  # -------------------------------------------------------------------------
+  # Job 1: Lint (flake8 + black + isort)
+  # -------------------------------------------------------------------------
+  lint:
+    name: "Lint – flake8 / black / isort"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cache pip packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-lint-${{ hashFiles('requirements-dev.txt') }}
+          restore-keys: ${{ runner.os }}-pip-lint-
+
+      - name: Install linting dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 black isort
+
+      - name: Run flake8 (PEP 8 compliance)
+        # E501: line too long (relaxed to 100 for readability)
+        # W503: line break before binary operator (style preference)
+        run: |
+          flake8 taskmanager/ \
+            --max-line-length=100 \
+            --extend-ignore=W503 \
+            --statistics \
+            --format=default
+        # Pipeline fails here if any PEP 8 violations are found
+
+      - name: Run black (formatting check)
+        run: black --check --diff taskmanager/
+
+      - name: Run isort (import order check)
+        run: isort --check-only --diff taskmanager/
+
+  # -------------------------------------------------------------------------
+  # Job 2: Type-checking (mypy)
+  # -------------------------------------------------------------------------
+  type-check:
+    name: "Type Check – mypy"
+    runs-on: ubuntu-latest
+    needs: lint   # only run if linting passed
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install mypy
+        run: |
+          pip install mypy
+          pip install -e .
+
+      - name: Run mypy
+        run: mypy taskmanager/ --ignore-missing-imports --strict
+
+  # -------------------------------------------------------------------------
+  # Job 3: Test (pytest + coverage)
+  # -------------------------------------------------------------------------
+  test:
+    name: "Test – pytest + coverage"
+    runs-on: ubuntu-latest
+    needs: lint   # run in parallel with type-check after lint passes
+
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache pip packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('requirements-dev.txt') }}
+          restore-keys: ${{ runner.os }}-pip-${{ matrix.python-version }}-
+
+      - name: Install project and dev dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install -r requirements-dev.txt
+
+      - name: Run pytest with coverage
+        # --tb=short       : concise tracebacks on failure
+        # -v               : verbose output (test names shown)
+        # --strict-markers : fail if unknown markers used
+        # --junitxml       : machine-readable report for CI tools
+        # --cov            : measure coverage of taskmanager package
+        # --cov-report     : generate both terminal and HTML reports
+        # --cov-fail-under : FAIL THE BUILD if coverage drops below 85%
+        run: |
+          pytest taskmanager/tests/ \
+            -v \
+            --tb=short \
+            --strict-markers \
+            --junitxml=reports/junit-${{ matrix.python-version }}.xml \
+            --cov=taskmanager \
+            --cov-report=term-missing \
+            --cov-report=html:reports/htmlcov-${{ matrix.python-version }} \
+            --cov-report=xml:reports/coverage-${{ matrix.python-version }}.xml \
+            --cov-fail-under=85
+
+      - name: Upload JUnit test report
+        if: always()   # upload even if tests fail (for debugging)
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-report-py${{ matrix.python-version }}
+          path: reports/junit-${{ matrix.python-version }}.xml
+
+      - name: Upload HTML coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html-py${{ matrix.python-version }}
+          path: reports/htmlcov-${{ matrix.python-version }}/
+
+  # -------------------------------------------------------------------------
+  # Job 4: Security scan (bandit SAST)
+  # -------------------------------------------------------------------------
+  security:
+    name: "Security – bandit SAST"
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install bandit
+        run: pip install bandit[toml]
+
+      - name: Run bandit security scan
+        # -r   : recursive
+        # -ll  : report only MEDIUM and HIGH severity
+        # -ii  : report only MEDIUM and HIGH confidence
+        # -f   : output format (json for CI consumption)
+        run: |
+          bandit -r taskmanager/ \
+            -ll -ii \
+            -f json \
+            -o reports/bandit-report.json || true
+          bandit -r taskmanager/ -ll -ii
+
+      - name: Upload bandit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-security-report
+          path: reports/bandit-report.json
