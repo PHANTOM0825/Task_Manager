@@ -100,13 +100,10 @@ def validate_title(title: Any) -> str:
         raise InvalidTaskError("Title cannot be empty or whitespace-only.")
     if len(stripped) > TITLE_MAX_LEN:
         raise InvalidTaskError(
-            f"Title must not exceed {TITLE_MAX_LEN} characters "
-            f"(got {len(stripped)})."
+            f"Title must not exceed {TITLE_MAX_LEN} characters " f"(got {len(stripped)})."
         )
     if not is_safe_string(stripped):
-        raise InvalidTaskError(
-            "Title contains potentially unsafe characters or SQL keywords."
-        )
+        raise InvalidTaskError("Title contains potentially unsafe characters or SQL keywords.")
     return stripped
 
 
@@ -137,9 +134,7 @@ def validate_description(description: Any) -> str:
     if not isinstance(description, str):
         raise InvalidTaskError("Description must be a string.")
     if len(description) > DESCRIPTION_MAX_LEN:
-        raise InvalidTaskError(
-            f"Description must not exceed {DESCRIPTION_MAX_LEN} characters."
-        )
+        raise InvalidTaskError(f"Description must not exceed {DESCRIPTION_MAX_LEN} characters.")
     if description and not is_safe_string(description):
         raise InvalidTaskError("Description contains potentially unsafe content.")
     return description
@@ -172,9 +167,7 @@ def validate_priority(priority: Any) -> Priority:
         except ValueError:
             pass
     valid = [p.value for p in Priority]
-    raise InvalidTaskError(
-        f"Priority must be one of {valid}; got '{priority}'."
-    )
+    raise InvalidTaskError(f"Priority must be one of {valid}; got '{priority}'.")
 
 
 def validate_due_date(due_date: Optional[datetime]) -> Optional[datetime]:

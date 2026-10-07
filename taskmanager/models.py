@@ -47,8 +47,7 @@ from enum import Enum
 from typing import Optional
 
 from taskmanager.exceptions import InvalidTaskError
-from taskmanager.security import sanitise_input, validate_username
-
+from taskmanager.security import validate_username
 
 # ---------------------------------------------------------------------------
 # Enumerations

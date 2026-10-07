@@ -112,9 +112,7 @@ class AuthorizationError(TaskManagerError):
 
     def __init__(self, user: str, action: str, resource: str):
         super().__init__(
-            message=(
-                f"User '{user}' is not authorised to perform '{action}' on '{resource}'."
-            ),
+            message=(f"User '{user}' is not authorised to perform '{action}' on '{resource}'."),
             code=403,
         )
         self.user = user

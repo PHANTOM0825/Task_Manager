@@ -65,7 +65,6 @@ from taskmanager.models import Priority, Status, Task, User
 from taskmanager.security import (
     generate_token,
     hash_password,
-    sanitise_input,
     verify_password,
 )
 from taskmanager.validators import validate_task_input
@@ -348,15 +347,19 @@ class TaskManager:
 
         if title is not None:
             from taskmanager.validators import validate_title
+
             task.title = validate_title(title)
         if description is not None:
             from taskmanager.validators import validate_description
+
             task.description = validate_description(description)
         if priority is not None:
             from taskmanager.validators import validate_priority
+
             task.priority = validate_priority(priority)
         if tags is not None:
             from taskmanager.validators import validate_tags
+
             task.tags = validate_tags(tags)
 
         task.updated_at = datetime.now(timezone.utc)
@@ -417,9 +420,7 @@ class TaskManager:
         task = self.get_task(task_id)
         self._check_authorised(requester, task, action="complete")
         if task.status in (Status.DONE, Status.CANCELLED):
-            raise InvalidTaskError(
-                f"Cannot complete a task with status '{task.status.value}'."
-            )
+            raise InvalidTaskError(f"Cannot complete a task with status '{task.status.value}'.")
         task.status = Status.DONE
         task.updated_at = datetime.now(timezone.utc)
         return task
@@ -443,9 +444,7 @@ class TaskManager:
         task = self.get_task(task_id)
         self._check_authorised(requester, task, action="cancel")
         if task.status in (Status.DONE, Status.CANCELLED):
-            raise InvalidTaskError(
-                f"Cannot cancel a task with status '{task.status.value}'."
-            )
+            raise InvalidTaskError(f"Cannot cancel a task with status '{task.status.value}'.")
         task.status = Status.CANCELLED
         task.updated_at = datetime.now(timezone.utc)
         return task

@@ -52,7 +52,8 @@ TOKEN_LENGTH: int = 32
 # (e.g., "Update" contains "pdate" but not the isolated word "UPDATE",
 #  and "README" should not match "ALTER" as a standalone token).
 _SQL_INJECTION_PATTERN = re.compile(
-    r"(\-\-|;|/\*|\*/|xp_|\bUNION\b|\bSELECT\b|\bINSERT\b|\bDELETE\b|\bDROP\b|\bALTER\b|\bCREATE\b)",
+    r"(\-\-|;|/\*|\*/|xp_|\bUNION\b|\bSELECT\b|\bINSERT\b|\bDELETE\b|"
+    r"\bDROP\b|\bALTER\b|\bCREATE\b)",
     re.IGNORECASE,
 )
 

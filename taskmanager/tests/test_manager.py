@@ -51,7 +51,6 @@ from taskmanager.exceptions import (
 from taskmanager.manager import TaskManager
 from taskmanager.models import Priority, Status
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -267,24 +266,18 @@ class TestUpdateTask:
 
     def test_owner_can_update_title(self, manager_with_tasks):
         """Task owner can update the title."""
-        task = manager_with_tasks.update_task(
-            task_id=1, requester="alice", title="Renamed Task"
-        )
+        task = manager_with_tasks.update_task(task_id=1, requester="alice", title="Renamed Task")
         assert task.title == "Renamed Task"
 
     def test_owner_can_update_priority(self, manager_with_tasks):
         """Task owner can change priority."""
-        task = manager_with_tasks.update_task(
-            task_id=1, requester="alice", priority="CRITICAL"
-        )
+        task = manager_with_tasks.update_task(task_id=1, requester="alice", priority="CRITICAL")
         assert task.priority == Priority.CRITICAL
 
     def test_non_owner_cannot_update(self, manager_with_tasks):
         """Non-owner → AuthorizationError."""
         with pytest.raises(AuthorizationError):
-            manager_with_tasks.update_task(
-                task_id=1, requester="bob", title="Stolen update"
-            )
+            manager_with_tasks.update_task(task_id=1, requester="bob", title="Stolen update")
 
     def test_admin_can_update_any_task(self, manager_with_tasks):
         """Admin can update any task regardless of ownership."""
@@ -296,9 +289,7 @@ class TestUpdateTask:
     def test_update_nonexistent_raises(self, manager_with_tasks):
         """Updating a nonexistent task → TaskNotFoundError."""
         with pytest.raises(TaskNotFoundError):
-            manager_with_tasks.update_task(
-                task_id=999, requester="alice", title="Nope"
-            )
+            manager_with_tasks.update_task(task_id=999, requester="alice", title="Nope")
 
 
 # ---------------------------------------------------------------------------
@@ -311,31 +302,23 @@ class TestAssignTask:
 
     def test_owner_assigns_to_bob(self, manager_with_tasks):
         """Sample data: alice assigns task#1 to bob → status=IN_PROGRESS."""
-        task = manager_with_tasks.assign_task(
-            task_id=1, assignee="bob", requester="alice"
-        )
+        task = manager_with_tasks.assign_task(task_id=1, assignee="bob", requester="alice")
         assert task.assigned_to == "bob"
         assert task.status == Status.IN_PROGRESS
 
     def test_non_owner_cannot_assign(self, manager_with_tasks):
         """Non-owner (bob) cannot assign alice's task → AuthorizationError."""
         with pytest.raises(AuthorizationError):
-            manager_with_tasks.assign_task(
-                task_id=1, assignee="bob", requester="bob"
-            )
+            manager_with_tasks.assign_task(task_id=1, assignee="bob", requester="bob")
 
     def test_assign_to_unregistered_user_raises(self, manager_with_tasks):
         """Assigning to an unregistered user → AuthenticationError."""
         with pytest.raises(AuthenticationError):
-            manager_with_tasks.assign_task(
-                task_id=1, assignee="ghost", requester="alice"
-            )
+            manager_with_tasks.assign_task(task_id=1, assignee="ghost", requester="alice")
 
     def test_admin_can_assign_any_task(self, manager_with_tasks):
         """Admin can assign any task."""
-        task = manager_with_tasks.assign_task(
-            task_id=1, assignee="bob", requester="admin_user"
-        )
+        task = manager_with_tasks.assign_task(task_id=1, assignee="bob", requester="admin_user")
         assert task.assigned_to == "bob"
 
 

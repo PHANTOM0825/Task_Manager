@@ -26,7 +26,6 @@ from taskmanager.exceptions import InvalidTaskError
 from taskmanager.models import Priority, Status, Task, User
 from taskmanager.security import hash_password
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -178,8 +177,16 @@ class TestTaskToDict:
     def test_all_keys_present(self):
         """All expected keys are present in the dict."""
         expected_keys = {
-            "id", "title", "description", "priority", "status",
-            "owner", "assigned_to", "created_at", "updated_at", "tags",
+            "id",
+            "title",
+            "description",
+            "priority",
+            "status",
+            "owner",
+            "assigned_to",
+            "created_at",
+            "updated_at",
+            "tags",
         }
         task = make_valid_task()
         assert set(task.to_dict().keys()) == expected_keys
@@ -200,6 +207,7 @@ class TestTaskToDict:
         d = task.to_dict()
         # Should parse without error
         from datetime import datetime
+
         datetime.fromisoformat(d["created_at"])
 
     def test_values_correct(self):
@@ -237,9 +245,7 @@ class TestTaskRepr:
 
 
 class TestPriorityEnum:
-    @pytest.mark.parametrize(
-        "value", ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
-    )
+    @pytest.mark.parametrize("value", ["LOW", "MEDIUM", "HIGH", "CRITICAL"])
     def test_all_values_exist(self, value):
         """All expected priority levels exist."""
         p = Priority(value)
@@ -256,9 +262,7 @@ class TestPriorityEnum:
 
 
 class TestStatusEnum:
-    @pytest.mark.parametrize(
-        "value", ["PENDING", "IN_PROGRESS", "DONE", "CANCELLED"]
-    )
+    @pytest.mark.parametrize("value", ["PENDING", "IN_PROGRESS", "DONE", "CANCELLED"])
     def test_all_values_exist(self, value):
         s = Status(value)
         assert s.value == value

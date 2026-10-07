@@ -36,7 +36,6 @@ from taskmanager.validators import (
     validate_title,
 )
 
-
 # ---------------------------------------------------------------------------
 # validate_title
 # ---------------------------------------------------------------------------
@@ -155,7 +154,7 @@ class TestValidatePriority:
             ("MEDIUM", Priority.MEDIUM),
             ("HIGH", Priority.HIGH),
             ("CRITICAL", Priority.CRITICAL),
-            ("low", Priority.LOW),     # case-insensitive
+            ("low", Priority.LOW),  # case-insensitive
             ("high", Priority.HIGH),
         ],
     )
@@ -314,9 +313,7 @@ class TestValidateTaskInput:
     def test_invalid_priority_propagates(self):
         """InvalidTaskError from priority validator propagates out."""
         with pytest.raises(InvalidTaskError):
-            validate_task_input(
-                title="Valid title", description="ok", priority="ULTRA"
-            )
+            validate_task_input(title="Valid title", description="ok", priority="ULTRA")
 
     def test_future_due_date_accepted(self):
         """Future due_date is returned in the result dict."""

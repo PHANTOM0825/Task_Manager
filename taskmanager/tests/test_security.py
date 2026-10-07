@@ -31,7 +31,6 @@ from taskmanager.security import (
     verify_password,
 )
 
-
 # ---------------------------------------------------------------------------
 # hash_password
 # ---------------------------------------------------------------------------
@@ -159,9 +158,9 @@ class TestGenerateToken:
         """Token must contain only URL-safe characters."""
         for _ in range(20):
             token = generate_token()
-            assert re.fullmatch(r"[A-Za-z0-9_\-]+", token), (
-                f"Token '{token}' contains unsafe characters"
-            )
+            assert re.fullmatch(
+                r"[A-Za-z0-9_\-]+", token
+            ), f"Token '{token}' contains unsafe characters"
 
     def test_unique_tokens(self):
         """Two calls should produce different tokens."""
@@ -252,13 +251,13 @@ class TestValidateUsername:
     @pytest.mark.parametrize(
         "username",
         [
-            "",          # empty
-            "ab",        # too short (< 3)
-            "a" * 51,    # too long (> 50)
-            "user name", # space
-            "user@name", # @ symbol
-            None,        # not a string
-            123,         # integer
+            "",  # empty
+            "ab",  # too short (< 3)
+            "a" * 51,  # too long (> 50)
+            "user name",  # space
+            "user@name",  # @ symbol
+            None,  # not a string
+            123,  # integer
         ],
     )
     def test_invalid_usernames(self, username):
