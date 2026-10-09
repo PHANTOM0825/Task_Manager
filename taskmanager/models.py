@@ -44,7 +44,7 @@ import re
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Optional
+from typing import Any, Optional
 
 from taskmanager.exceptions import InvalidTaskError
 from taskmanager.security import validate_username
@@ -124,7 +124,7 @@ class Task:
     assigned_to: Optional[str] = None
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    tags: list = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
 
     # ------------------------------------------------------------------
     # Validation
@@ -187,7 +187,7 @@ class Task:
     # Helpers
     # ------------------------------------------------------------------
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         """
         Serialise the task to a plain dictionary.
 
@@ -267,7 +267,7 @@ class User:
         if not self._EMAIL_RE.match(self.email):
             raise InvalidTaskError(f"Email '{self.email}' is not a valid address.")
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         """
         Serialise the user to a plain dictionary (excluding credentials).
 

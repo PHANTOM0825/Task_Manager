@@ -52,7 +52,7 @@ Pseudocode — assign_task::
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from taskmanager.exceptions import (
     AuthenticationError,
@@ -471,7 +471,7 @@ class TaskManager:
     # Statistics / reporting
     # ------------------------------------------------------------------
 
-    def get_statistics(self) -> dict:
+    def get_statistics(self) -> dict[str, Any]:
         """
         Return aggregate statistics about the task store.
 

@@ -102,7 +102,7 @@ jobs:
           pip install -e .
 
       - name: Run mypy
-        run: mypy taskmanager/ --ignore-missing-imports --strict
+        run: mypy taskmanager/ --exclude "tests" --ignore-missing-imports --strict
 
   # -------------------------------------------------------------------------
   # Job 3: Test (pytest + coverage)

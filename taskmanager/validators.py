@@ -205,7 +205,7 @@ def validate_due_date(due_date: Optional[datetime]) -> Optional[datetime]:
     return due_date
 
 
-def validate_tags(tags: Any) -> list:
+def validate_tags(tags: Any) -> list[str]:
     """
     Validate a list of string tags.
 
@@ -254,7 +254,7 @@ def validate_task_input(
     priority: Any,
     tags: Any = None,
     due_date: Optional[datetime] = None,
-) -> dict:
+) -> dict[str, Any]:
     """
     Validate all task input fields and return a clean dict.
 
